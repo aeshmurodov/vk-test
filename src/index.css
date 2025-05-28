@@ -1,0 +1,12 @@
+/* src/index.css */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--vkui--color_background_content); /* VK UI background color */
+}
+
+#root {
+  min-height: 100vh; /* Ensure app takes full height */
+}
