@@ -24,7 +24,6 @@ describe('API Functions (Asynchronous Operations)', () => {
 
     mockedAxios.get.mockResolvedValueOnce({
       data: mockUsers,
-      headers: { 'x-total-count': totalCount.toString() },
       status: 200,
       statusText: 'OK',
       config: {},

@@ -13,12 +13,27 @@ const apiClient = axios.create({
 
 export const getUsers = async (
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  sortColumn: keyof User | null = null, // Add sortColumn
+  sortOrder: 'asc' | 'desc' = 'asc' // Add sortOrder
 ): Promise<{ users: User[]; totalCount: number }> => {
-  const response = await apiClient.get(`/users?_page=${page}&_limit=${limit}`);
-  // json-server adds X-Total-Count header for total number of resources
-  const totalCount = parseInt(response.headers['x-total-count'], 10);
-  return { users: response.data, totalCount };
+  let url = `/users?_page=${page}&_per_page=${limit}`;
+
+  if (sortColumn) {
+    url += `&_sort=${String(sortColumn)}&_per_page=${sortOrder}`;
+  }
+
+  const response = await apiClient.get(url);
+
+  const totalCountHeader = response.data['items'];
+  let totalCount = parseInt(totalCountHeader, 10);
+
+  if (isNaN(totalCount) || !totalCountHeader) {
+      console.warn("Items value missing or invalid. Falling back to data length for totalCount.");
+      totalCount = response.data.length
+  }
+  
+  return { users: response.data.data, totalCount };
 };
 
 export const addUser = async (userData: NewUserFormData): Promise<User> => {
