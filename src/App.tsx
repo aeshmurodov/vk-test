@@ -15,7 +15,7 @@ function App() {
   };
 
   return (
-    <SplitLayout header={<PanelHeader delimiter="bottom" />}>
+    <SplitLayout header={<PanelHeader delimiter="spacing" />}>
       <SplitCol autoSpaced>
         <View activePanel="main">
           <Panel id="main">

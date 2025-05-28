@@ -1,6 +1,6 @@
 // src/components/UserForm.tsx
 import React from 'react';
-import { useForm, SubmitHandler, FieldErrors, Controller } from 'react-hook-form';
+import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import {
   Group,
   Header,
@@ -12,7 +12,7 @@ import {
   RadioGroup,
   Radio,
 } from '@vkontakte/vkui';
-import { NewUserFormData } from '../types';
+import { type NewUserFormData } from '../types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addUser } from '../api/users';
 
@@ -26,7 +26,18 @@ export const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
     reset,
     formState: { errors, isSubmitting, isDirty },
     control,
-  } = useForm<NewUserFormData>();
+  } = useForm<NewUserFormData>({
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      age: 18,
+      city: '',
+      occupation: '',
+      status: 'Активен', // или '' если будет выбран
+    },
+  });
+  
 
   const queryClient = useQueryClient();
 
@@ -47,7 +58,7 @@ export const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
   };
 
   const formErrors = Object.keys(errors).length > 0 && (
-    <FormStatus header="Ошибки заполнения" mode="error">
+    <FormStatus title="Ошибки заполнения" mode="error">
       {Object.values(errors).map((error, index) => (
         <li key={index}>{(error as any).message || 'Неизвестная ошибка'}</li>
       ))}
@@ -55,9 +66,20 @@ export const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
   );
 
   return (
-    <Group header={<Header mode="secondary">Добавить нового пользователя</Header>}>
+    <Group header={<Header>Добавить нового пользователя</Header>}>
       {formErrors}
       <form onSubmit={handleSubmit(onSubmit)}>
+        {mutation.isSuccess && (
+          <FormStatus title="Успех!" mode="default">
+            Пользователь успешно добавлен.
+          </FormStatus>
+        )}
+        {mutation.isError && (
+          <FormStatus title="Ошибка" mode="error">
+            Не удалось добавить пользователя: {mutation.error?.message || 'Неизвестная ошибка.'}
+          </FormStatus>
+        )}
+
         {/* Input: First Name - Using Controller */}
         <FormItem
           top="Имя"
@@ -146,7 +168,6 @@ export const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
               required: 'Возраст обязателен',
               min: { value: 18, message: 'Возраст должен быть не менее 18' },
               max: { value: 99, message: 'Возраст должен быть не более 99' },
-              valueAsNumber: true,
             }}
             render={({ field: { ref, ...restField } }) => (
               <Input
@@ -226,8 +247,8 @@ export const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
                 {...restField}
                 getRootRef={ref}
               >
-                <Radio value="Активен">Активен</Radio>
-                <Radio value="Неактивен">Неактивен</Radio>
+                <Radio name='status' value="Активен">Активен</Radio>
+                <Radio name='status' value="Неактивен">Неактивен</Radio>
               </RadioGroup>
             )}
           />
@@ -243,16 +264,7 @@ export const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
             {mutation.isPending ? 'Отправка...' : 'Добавить запись'}
           </Button>
         </FormItem>
-        {mutation.isSuccess && (
-          <FormStatus header="Успех!" mode="done">
-            Пользователь успешно добавлен.
-          </FormStatus>
-        )}
-        {mutation.isError && (
-          <FormStatus header="Ошибка" mode="error">
-            Не удалось добавить пользователя: {mutation.error?.message || 'Неизвестная ошибка.'}
-          </FormStatus>
-        )}
+
       </form>
     </Group>
   );
